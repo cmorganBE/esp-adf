@@ -60,78 +60,80 @@ static int tlv320_open(const audio_codec_if_t *h, void *cfg, int cfg_size)
     codec->gpio_if = codec_cfg->gpio_if;
 
     // Set register page to 0
-    ret |= tlv320_write_reg_check(codec, TLV320_PAGE_0_CONTROL_REG00, TLV320_PAGE_0);
+    ret |= tlv320_write_reg_check(codec, TLV320_CONTROL_PAGE0_REG00, TLV320_PAGE_0);
 
     // Initiate SW Reset
-    ret |= tlv320_write_reg(codec, TLV320_SOFTWARE_RESET_REG01, 0x01);
+    ret |= tlv320_write_reg(codec, TLV320_SOFTWARE_RESET_PAGE0_REG01, 0x01);
 
     // Program and power up NDAC
-    ret |= tlv320_write_reg_check(codec, TLV320_DAC_NDAC_VAL_REG11, 0x88);
+    ret |= tlv320_write_reg_check(codec, TLV320_DAC_NDAC_VAL_PAGE0_REG11, 0x88);
 
     // Program and power up MDAC
-    ret |= tlv320_write_reg_check(codec, TLV320_DAC_MDAC_VAL_REG12, 0x82);
+    ret |= tlv320_write_reg_check(codec, TLV320_DAC_MDAC_VAL_PAGE0_REG12, 0x82);
 
     // Program OSR value
     // DOSR = 128, DOSR(9:8) = 0, DOSR(7:0) = 128
-    ret |= tlv320_write_reg_check(codec, TLV320_DAC_DOSR_VAL_MSB_REG13, 0x00);
-    ret |= tlv320_write_reg_check(codec, TLV320_DAC_DOSR_VAL_LSB_REG14, 0x80);
+    ret |= tlv320_write_reg_check(codec, TLV320_DAC_DOSR_VAL_MSB_PAGE0_REG13, 0x00);
+    ret |= tlv320_write_reg_check(codec, TLV320_DAC_DOSR_VAL_LSB_PAGE0_REG14, 0x80);
 
     // mode is i2s, wordlength is 16, slave mode
-    ret |= tlv320_write_reg_check(codec, TLV320_CODEC_INTERFACE_CONTROL_REG27, 00);
+    ret |= tlv320_write_reg_check(codec, TLV320_CODEC_INTERFACE_CONTROL_PAGE0_REG27, 00);
 
     // Program the processing block to be used
     // Select DAC DSP Processing Block PRB_P16
-    ret |= tlv320_write_reg_check(codec, TLV320_DAC_PROCESSING_BLOCK_MINIDSP_SELECTION_REG60, 0x10);
-    ret |= tlv320_write_reg_check(codec, TLV320_PAGE_0_CONTROL_REG00, TLV320_PAGE_8);
-    ret |= tlv320_write_reg_check(codec, TLV320_DAC_COEFFICIENT_RAM_CONTROL_REG01, 0x04);
-    ret |= tlv320_write_reg_check(codec, TLV320_PAGE_8_CONTROL_REG00, TLV320_PAGE_0);
+    ret |= tlv320_write_reg_check(codec, TLV320_DAC_PROCESSING_BLOCK_MINIDSP_SELECTION_PAGE0_REG60, 0x10);
+    ret |= tlv320_write_reg_check(codec, TLV320_CONTROL_PAGE0_REG00, TLV320_PAGE_8);
+    ret |= tlv320_write_reg_check(codec, TLV320_DAC_COEFFICIENT_RAM_CONTROL_PAGE8_REG01, 0x04);
 
     // Program analog blocks
     // Page 1 is selected
-    ret |= tlv320_write_reg_check(codec, TLV320_PAGE_8_CONTROL_REG00, TLV320_PAGE_1);
+    ret |= tlv320_write_reg_check(codec, TLV320_CONTROL_PAGE8_REG00, TLV320_PAGE_1);
 
     // Program common-mode voltage (default = 1.35V)
-    ret |= tlv320_write_reg_check(codec, TLV320_HEADPHONE_DRIVERS_REG31, 0x04);
+    ret |= tlv320_write_reg_check(codec, TLV320_HEADPHONE_DRIVERS_PAGE1_REG31, 0x04);
 
     // Program headphone-specific depop settings (in case headphone driver is used)
     // De-pop, Power on = 800 ms, Step time = 4 ms
-    ret |= tlv320_write_reg_check(codec, TLV320_HP_OUTPUT_DRIVERS_POP_REMOVAL_SETTINGS_REG33, 0x4e);
+    ret |= tlv320_write_reg_check(codec, TLV320_HP_OUTPUT_DRIVERS_POP_REMOVAL_SETTINGS_PAGE1_REG33, 0x4e);
 
     // Program routing of DAC output ot the output amplifier (headphone/lineout or speaker)
     // DAC routed to HPOUT
-    ret |= tlv320_write_reg_check(codec, TLV320_DAC_OUTPUT_MIXER_ROUTING_REG35, 0x40);
+    ret |= tlv320_write_reg_check(codec, TLV320_DAC_OUTPUT_MIXER_ROUTING_PAGE1_REG35, 0x40);
 
     // Unmute and set gain of output driver
     // Unmute HPOUT, set gain = 0db
-    ret |= tlv320_write_reg_check(codec, TLV320_HPOUT_DRIVER_REG40, 0x06);
+    ret |= tlv320_write_reg_check(codec, TLV320_HPOUT_DRIVER_PAGE1_REG40, 0x06);
 
     // Unmute Class-D, set gain = 18 db
-    ret |= tlv320_write_reg_check(codec, TLV320_CLASS_D_OUTPUT_DRIVER_DRIVER_REG42, 0x1C);
+    ret |= tlv320_write_reg_check(codec, TLV320_CLASS_D_OUTPUT_DRIVER_DRIVER_PAGE1_REG42, 0x1C);
 
     // HPOUT powered up
-    ret |= tlv320_write_reg_check(codec, TLV320_HEADPHONE_DRIVERS_REG31, 0x82);
+    ret |= tlv320_write_reg_check(codec, TLV320_HEADPHONE_DRIVERS_PAGE1_REG31, 0x82);
 
     // Power-up Class-D drivers
-    ret |= tlv320_write_reg_check(codec, TLV320_CLASS_D_SPEAKER_AMP_REG32, 0xC6);
+    ret |= tlv320_write_reg_check(codec, TLV320_CLASS_D_SPEAKER_AMP_PAGE1_REG32, 0xC6);
 
     // Enable HPOUT output analog volume, set = -9 dB
-    ret |= tlv320_write_reg_check(codec, TLV320_ANALOG_VOLUME_TO_HPOUT_REG36, 0x92);
+    ret |= tlv320_write_reg_check(codec, TLV320_ANALOG_VOLUME_TO_HPOUT_PAGE1_REG36, 0x92);
 
     // Enable Class-D output analog volume, set = -9 dB
-    ret |= tlv320_write_reg_check(codec, TLV320_ANALOG_VOLUME_TO_CLASS_D_OUTPUT_DRIVER_REG38, 0x92);
+    ret |= tlv320_write_reg_check(codec, TLV320_ANALOG_VOLUME_TO_CLASS_D_OUTPUT_DRIVER_PAGE1_REG38, 0x92);
+
+
+
 
     // Page 0 is selected
-    ret |= tlv320_write_reg_check(codec, TLV320_PAGE_1_CONTROL_REG00, TLV320_PAGE_0);
+    ret |= tlv320_write_reg_check(codec, TLV320_CONTROL_PAGE1_REG00, TLV320_PAGE_0);
 
     // Powerup DAC (soft step disable)
-    ret |= tlv320_write_reg_check(codec, TLV320_DAC_DATA_PATH_SETUP_REG63, 0x94);
+    ret |= tlv320_write_reg_check(codec, TLV320_DAC_DATA_PATH_SETUP_PAGE0_REG63, 0x94);
 
     // DAC gain = -22 dB
-    ret |= tlv320_write_reg_check(codec, TLV320_DAC_VOLUME_CONTROL_REG65, 0xD4);
+    ret |= tlv320_write_reg_check(codec, TLV320_DAC_VOLUME_CONTROL_PAGE0_REG65, 0xD4);
 
     // Unmute digital volume control
     // Unmute DAC
-    ret |= tlv320_write_reg_check(codec, TLV320_DAC_MUTE_CONTROL_REG64, 0x04);
+    ret |= tlv320_write_reg_check(codec, TLV320_DAC_MUTE_CONTROL_PAGE0_REG64, 0x04);
 
     if (ret != 0) {
         return ESP_CODEC_DEV_WRITE_FAIL;
@@ -152,7 +154,7 @@ static int tlv320_set_vol(const audio_codec_if_t *h, float db_value)
     }
 
     uint8_t volume = esp_codec_dev_vol_calc_reg(&vol_range, db_value);
-    int ret = tlv320_write_reg_check(codec, TLV320_DAC_VOLUME_CONTROL_REG65, volume);
+    int ret = tlv320_write_reg_check(codec, TLV320_DAC_VOLUME_CONTROL_PAGE0_REG65, volume);
     ESP_LOGD(TAG, "Set volume reg:%x db:%f", volume, db_value);
     return (ret == 0) ? ESP_CODEC_DEV_OK : ESP_CODEC_DEV_WRITE_FAIL;
 }
@@ -164,7 +166,7 @@ static int tlv320_set_mute(const audio_codec_if_t *h, bool mute)
         return ESP_CODEC_DEV_INVALID_ARG;
     }
     int regv;
-    int ret = tlv320_read_reg(codec, TLV320_DAC_MUTE_CONTROL_REG64, &regv);
+    int ret = tlv320_read_reg(codec, TLV320_DAC_MUTE_CONTROL_PAGE0_REG64, &regv);
     if (ret < 0) {
         return ESP_CODEC_DEV_READ_FAIL;
     }
@@ -173,7 +175,7 @@ static int tlv320_set_mute(const audio_codec_if_t *h, bool mute)
     } else {
         regv = 0x04;
     }
-    return tlv320_write_reg_check(codec, TLV320_DAC_MUTE_CONTROL_REG64, (uint8_t) regv);
+    return tlv320_write_reg_check(codec, TLV320_DAC_MUTE_CONTROL_PAGE0_REG64, (uint8_t) regv);
 }
 
 static int tlv320_set_reg(const audio_codec_if_t *h, int reg, int value)
