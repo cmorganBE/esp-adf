@@ -65,11 +65,22 @@ static int tlv320_open(const audio_codec_if_t *h, void *cfg, int cfg_size)
     // Initiate SW Reset
     ret |= tlv320_write_reg(codec, TLV320_SOFTWARE_RESET_PAGE0_REG01, 0x01);
 
+    //////////////////
+    // Internal clock configuration
+    //
+    // Note: NDAC, MDAC, and DOSR settings have to meet several requirements expressed in the
+    //       datasheet as equations in order for the codec to work correctly.
+    //
+    // TODO: calculations for clock registers are based on the output audio sample rate and has to be adjusted
+    //       as the output audio sample rate changes.
+    //
+    // Note: The NDAC, MDAC, and DOSR are configured for 22050 output sample rate (and should work at 22050 and above, 44100 etc)
+
     // Program and power up NDAC
-    ret |= tlv320_write_reg_check(codec, TLV320_DAC_NDAC_VAL_PAGE0_REG11, 0x88);
+    ret |= tlv320_write_reg_check(codec, TLV320_DAC_NDAC_VAL_PAGE0_REG11, 0x82);
 
     // Program and power up MDAC
-    ret |= tlv320_write_reg_check(codec, TLV320_DAC_MDAC_VAL_PAGE0_REG12, 0x82);
+    ret |= tlv320_write_reg_check(codec, TLV320_DAC_MDAC_VAL_PAGE0_REG12, 0x81);
 
     // Program OSR value
     // DOSR = 128, DOSR(9:8) = 0, DOSR(7:0) = 128
@@ -81,30 +92,32 @@ static int tlv320_open(const audio_codec_if_t *h, void *cfg, int cfg_size)
 
     // Program the processing block to be used
     // Select DAC DSP Processing Block PRB_P16
-    ret |= tlv320_write_reg_check(codec, TLV320_DAC_PROCESSING_BLOCK_MINIDSP_SELECTION_PAGE0_REG60, 0x10);
+    ret |= tlv320_write_reg_check(codec, TLV320_DAC_PROCESSING_BLOCK_MINIDSP_SELECTION_PAGE0_REG60, 0x04);
     ret |= tlv320_write_reg_check(codec, TLV320_CONTROL_PAGE0_REG00, TLV320_PAGE_8);
     ret |= tlv320_write_reg_check(codec, TLV320_DAC_COEFFICIENT_RAM_CONTROL_PAGE8_REG01, 0x04);
 
+
+    /////////////////////////
     // Program analog blocks
     // Page 1 is selected
     ret |= tlv320_write_reg_check(codec, TLV320_CONTROL_PAGE8_REG00, TLV320_PAGE_1);
 
     // Program common-mode voltage (default = 1.35V)
-    ret |= tlv320_write_reg_check(codec, TLV320_HEADPHONE_DRIVERS_PAGE1_REG31, 0x04);
+    ret |= tlv320_write_reg_check(codec, TLV320_HEADPHONE_DRIVERS_PAGE1_REG31, 0x00);
 
     // Program headphone-specific depop settings (in case headphone driver is used)
     // De-pop, Power on = 800 ms, Step time = 4 ms
     ret |= tlv320_write_reg_check(codec, TLV320_HP_OUTPUT_DRIVERS_POP_REMOVAL_SETTINGS_PAGE1_REG33, 0x4e);
 
     // Program routing of DAC output ot the output amplifier (headphone/lineout or speaker)
-    // DAC routed to HPOUT
+    // DAC routed to mixer
     ret |= tlv320_write_reg_check(codec, TLV320_DAC_OUTPUT_MIXER_ROUTING_PAGE1_REG35, 0x40);
 
     // Unmute and set gain of output driver
     // Unmute HPOUT, set gain = 0db
     ret |= tlv320_write_reg_check(codec, TLV320_HPOUT_DRIVER_PAGE1_REG40, 0x06);
 
-    // Unmute Class-D, set gain = 18 db
+    // Unmute Class-D, set gain = 24db (max class-D gain)
     ret |= tlv320_write_reg_check(codec, TLV320_CLASS_D_OUTPUT_DRIVER_DRIVER_PAGE1_REG42, 0x1C);
 
     // HPOUT powered up
@@ -112,13 +125,6 @@ static int tlv320_open(const audio_codec_if_t *h, void *cfg, int cfg_size)
 
     // Power-up Class-D drivers
     ret |= tlv320_write_reg_check(codec, TLV320_CLASS_D_SPEAKER_AMP_PAGE1_REG32, 0xC6);
-
-    // Enable HPOUT output analog volume, set = -9 dB
-    ret |= tlv320_write_reg_check(codec, TLV320_ANALOG_VOLUME_TO_HPOUT_PAGE1_REG36, 0x92);
-
-    // Enable Class-D output analog volume, set = -9 dB
-    ret |= tlv320_write_reg_check(codec, TLV320_ANALOG_VOLUME_TO_CLASS_D_OUTPUT_DRIVER_PAGE1_REG38, 0x92);
-
 
 
 
@@ -128,8 +134,8 @@ static int tlv320_open(const audio_codec_if_t *h, void *cfg, int cfg_size)
     // Powerup DAC (soft step disable)
     ret |= tlv320_write_reg_check(codec, TLV320_DAC_DATA_PATH_SETUP_PAGE0_REG63, 0x94);
 
-    // DAC gain = -22 dB
-    ret |= tlv320_write_reg_check(codec, TLV320_DAC_VOLUME_CONTROL_PAGE0_REG65, 0xD4);
+    // DAC gain = 0 dB
+    ret |= tlv320_write_reg_check(codec, TLV320_DAC_VOLUME_CONTROL_PAGE0_REG65, 0x0);
 
     // Unmute digital volume control
     // Unmute DAC
