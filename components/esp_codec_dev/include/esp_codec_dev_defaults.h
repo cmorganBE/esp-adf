@@ -35,8 +35,8 @@
 #ifdef CONFIG_CODEC_TAS5805M_SUPPORT
 #include "tas5805m_dac.h"
 #endif
-#ifdef CONFIG_CODEC_TVL320_SUPPORT
-#include "tvl320_codec.h"
+#ifdef CONFIG_CODEC_TLV320_SUPPORT
+#include "tlv320_codec.h"
 #endif
 #ifdef CONFIG_CODEC_ZL38063_SUPPORT
 #include "zl38063_codec.h"
