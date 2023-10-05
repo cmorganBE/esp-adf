@@ -11,12 +11,14 @@ extern "C" {
  * https://www.ti.com/product/TLV320AIC3120/part-details/TLV320AIC3120IRHBT
 */
 
+
+#define TLV320_CONTROL_PAGE_CONTROL_REGISTER                                                              0x00
+
 /**
  * PAGE 0 Defines
 */
 #define TLV320_PAGE_0                                                                                     0x00
 
-#define TLV320_CONTROL_PAGE0_REG00                                                                        0x00
 #define TLV320_SOFTWARE_RESET_PAGE0_REG01                                                                 0X01
 #define TLV320_OT_FLAG_PAGE0_REG03                                                                        0X03
 #define TLV320_CLOCK_GEN_MUXING_PAGE0_REG04                                                               0x04
@@ -101,7 +103,6 @@ extern "C" {
 
 #define TLV320_PAGE_1                                                                                     0x01
 
-#define TLV320_CONTROL_PAGE1_REG00                                                                        0x00
 #define TLV320_HEADPHONE_AND_SPEAKER_AMPLIFIER_ERROR_CONTROL_PAGE1_REG30                                  0x1E
 #define TLV320_HEADPHONE_DRIVERS_PAGE1_REG31                                                              0X1F
 #define TLV320_CLASS_D_SPEAKER_AMP_PAGE1_REG32                                                            0x20
@@ -125,7 +126,6 @@ extern "C" {
 
 #define TLV320_PAGE_3                                                                                     3
 
-#define TLV320_CONTROL_PAGE3_REG00                                                                        0x00
 #define TLV320_TIMER_CLOCK_MCLK_DIVIDER_PAGE3_REG16                                                       0x10
 
 
@@ -135,7 +135,6 @@ extern "C" {
 
 #define TLV320_PAGE_8                                                                                     8
 
-#define TLV320_CONTROL_PAGE8_REG00                                                                        0x00
 #define TLV320_DAC_COEFFICIENT_RAM_CONTROL_PAGE8_REG01                                                    0x01
 
 /**
