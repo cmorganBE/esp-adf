@@ -258,10 +258,6 @@ static int tlv320_set_mute(const audio_codec_if_t *h, bool mute)
         return ret;
     }
 
-    // mask off the lowest bit, its read-only from the register and indicates that gains are being adjusted
-    // so we don't want to attempt to write it back as anything other than 0
-    reg42 &= ~(0x1);
-
     int reg42_new = reg42;
     if(mute)
     {
@@ -272,7 +268,13 @@ static int tlv320_set_mute(const audio_codec_if_t *h, bool mute)
 
     ESP_LOGI(TAG, "%s read %d(0x%x), writing %d(0x%x)", __FUNCTION__, reg42, reg42, reg42_new, reg42_new);
 
-    ret |= tlv320_write_reg_check(codec, TLV320_PAGE_1, TLV320_CLASS_D_OUTPUT_DRIVER_DRIVER_PAGE1_REG42, reg42_new);
+    // register 42s lowest bit indicates whether the programmed gains
+    // have taken effect or not. 1 indicates applied, 0 not yet applied
+    //
+    // to avoid spurrious errors we don't check writes to this particular register
+    ret |= tlv320_write_reg(codec, TLV320_CONTROL_PAGE_CONTROL_REGISTER, TLV320_PAGE_1);
+    current_page = 1;
+    ret |= tlv320_write_reg(codec, TLV320_CLASS_D_OUTPUT_DRIVER_DRIVER_PAGE1_REG42, reg42_new);
     if(ret != ESP_CODEC_DEV_OK)
     {
         ESP_LOGE(TAG, "%s writing back reg 42", __FUNCTION__);
