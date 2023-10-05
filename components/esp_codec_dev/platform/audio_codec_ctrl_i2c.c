@@ -56,6 +56,7 @@ static int _i2c_ctrl_read_reg(const audio_codec_ctrl_if_t *ctrl, int addr, int a
     esp_err_t ret = ESP_OK;
     i2c_cmd_handle_t cmd;
     cmd = i2c_cmd_link_create();
+    if(!cmd) { ESP_LOGE(TAG, "%s i2c_cmd_link_create failed", __FUNCTION__); }
     ret |= i2c_master_start(cmd);
     ret |= i2c_master_write_byte(cmd, i2c_ctrl->addr, 1);
     ret |= i2c_master_write(cmd, (uint8_t *) &addr, addr_len, 1);
@@ -64,6 +65,7 @@ static int _i2c_ctrl_read_reg(const audio_codec_ctrl_if_t *ctrl, int addr, int a
     i2c_cmd_link_delete(cmd);
 
     cmd = i2c_cmd_link_create();
+    if(!cmd) { ESP_LOGE(TAG, "%s i2c_cmd_link_create failed", __FUNCTION__); }
     ret |= i2c_master_start(cmd);
     ret |= i2c_master_write_byte(cmd, i2c_ctrl->addr | 0x01, 1);
 
@@ -92,6 +94,7 @@ static int _i2c_ctrl_write_reg(const audio_codec_ctrl_if_t *ctrl, int addr, int 
     }
     esp_err_t ret = ESP_OK;
     i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+    if(!cmd) { ESP_LOGE(TAG, "%s i2c_cmd_link_create failed", __FUNCTION__); }
     ret |= i2c_master_start(cmd);
     ret |= i2c_master_write_byte(cmd, i2c_ctrl->addr, 1);
     ret |= i2c_master_write(cmd, (uint8_t *) &addr, addr_len, 1);
